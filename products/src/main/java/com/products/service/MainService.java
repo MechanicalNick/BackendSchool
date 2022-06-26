@@ -49,23 +49,6 @@ public class MainService {
         return categoryRepository.findById(id);
     }
 
-    public boolean checkParentType(ShopUnitImport item, HashMap<UUID, ShopUnitImport> idMap) {
-        if(item.getParentId() == null)
-            return  true;
-
-        if(idMap.containsKey(item.getParentId())){
-            var parent = idMap.get(item.getParentId());
-            if (parent.getType() != UnitType.CATEGORY)
-                return false;
-        }
-        var repoItem = find(item.getParentId());
-        if(!repoItem.isEmpty()){
-            if(repoItem.get().getType() != UnitType.CATEGORY)
-                return false;
-        }
-        return true;
-    }
-
     public ShopUnit createSubtree(ShopUnitEntity entity){
         return treeBuilder.build(entity);
     }
@@ -117,6 +100,8 @@ public class MainService {
                 return false;
             if(!checkParentType(item, idMap))
                 return false;
+            if(!checkCategoryPrice(item))
+                return false;
             entities.add(entity);
             entity.accept(mapVisitor, item);
         }
@@ -164,5 +149,26 @@ public class MainService {
             value = entity.get();
         }
         return value;
+    }
+
+    private boolean checkCategoryPrice(ShopUnitImport item){
+        return item.getType() != UnitType.CATEGORY || item.getPrice() == null;
+    }
+
+    private boolean checkParentType(ShopUnitImport item, HashMap<UUID, ShopUnitImport> idMap) {
+        if(item.getParentId() == null)
+            return  true;
+
+        if(idMap.containsKey(item.getParentId())){
+            var parent = idMap.get(item.getParentId());
+            if (parent.getType() != UnitType.CATEGORY)
+                return false;
+        }
+        var repoItem = find(item.getParentId());
+        if(!repoItem.isEmpty()){
+            if(repoItem.get().getType() != UnitType.CATEGORY)
+                return false;
+        }
+        return true;
     }
 }

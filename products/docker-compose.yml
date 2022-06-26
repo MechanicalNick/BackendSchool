@@ -1,7 +1,7 @@
 version: '2'
 services:
   API:
-    image: 'mechanicalnick/newrepo:products'
+    image: 'mechanicalnick/newrepo:productsapp'
     restart: always
     ports:
       - "80:80"
